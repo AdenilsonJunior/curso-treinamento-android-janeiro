@@ -1,9 +1,12 @@
 package com.treinamento.adenilson.myretrofitapplication;
 
-import android.graphics.Color;
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,19 +17,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.treinamento.adenilson.myretrofitapplication.domain.AccessToken;
+import com.treinamento.adenilson.myretrofitapplication.domain.GitHubOAuthApi;
 import com.treinamento.adenilson.myretrofitapplication.domain.GitHubStatusApi;
 import com.treinamento.adenilson.myretrofitapplication.domain.GitHubUserApi;
 import com.treinamento.adenilson.myretrofitapplication.domain.entity.Status;
 import com.treinamento.adenilson.myretrofitapplication.domain.entity.User;
+import com.treinamento.adenilson.myretrofitapplication.util.AppUtil;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import okhttp3.Credentials;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Call;
@@ -38,37 +42,32 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     private String TAG = MainActivity.class.getSimpleName();
-    private ImageView mImageViewGit;
-    private TextView mTextViewStatus;
+    @BindView(R.id.image_view_git)
+    ImageView mImageViewGit;
+    @BindView(R.id.text_view_status)
+    TextView mTextViewStatus;
+    @BindView(R.id.text_input_user)
+    TextInputLayout mTextInputUsername;
+    @BindView(R.id.text_input_pass)
+    TextInputLayout mTextInputPassword;
     private GitHubStatusApi mStatusApi;
     private GitHubUserApi mUserApi;
-    private TextInputLayout mTextInputUsername;
-    private TextInputLayout mTextInputPassword;
-    private Button mButtonLogin;
-    private Button mButtonAuth;
+    private GitHubOAuthApi mOAuthApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        bindViews();
-        createStatusApi();
+        ButterKnife.bind(this);
+
+        configureViews();
+        createApis();
     }
 
-    private void createStatusApi() {
-
-        //"2012-12-07T18:11:55Z"
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-                .create();
-
-        final Retrofit retrofit = new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .baseUrl(GitHubStatusApi.BASE_URL)
-                .build();
-
-        mStatusApi = retrofit.create(GitHubStatusApi.class);
+    private void createApis() {
+        mStatusApi = GitHubStatusApi.RETROFIT.create(GitHubStatusApi.class);
+        mOAuthApi = GitHubOAuthApi.RETROFIT.create(GitHubOAuthApi.class);
     }
 
     private void requestStatusApi() {
@@ -80,9 +79,9 @@ public class MainActivity extends AppCompatActivity {
                 Status body = response.body();
                 if (response.isSuccessful()) {
                     changeStatus(body.getType().getColor(), body.getBody());
-                    String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format
-                            (body.created_on);
-                    Toast.makeText(MainActivity.this, date, Toast.LENGTH_SHORT).show();
+                    // String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format
+                    //         (body.created_on);
+                    // Toast.makeText(MainActivity.this, date, Toast.LENGTH_SHORT).show();
 
                 } else {
                     try {
@@ -99,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Status> call, Throwable t) {
+                Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -108,9 +108,7 @@ public class MainActivity extends AppCompatActivity {
         mTextViewStatus.setTextColor(color);
     }
 
-    private void bindViews() {
-        mImageViewGit = (ImageView) findViewById(R.id.image_view_git);
-        mTextViewStatus = (TextView) findViewById(R.id.text_view_status);
+    private void configureViews() {
 
         TextWatcher textWatcher = new TextWatcher() {
 
@@ -147,46 +145,44 @@ public class MainActivity extends AppCompatActivity {
                 mTextInputPassword.setError(null);
             }
         };
-        mTextInputUsername = (TextInputLayout) findViewById(R.id.text_input_user);
-        mTextInputPassword = (TextInputLayout) findViewById(R.id.text_input_pass);
         mTextInputUsername.getEditText().addTextChangedListener(textWatcher);
         mTextInputPassword.getEditText().addTextChangedListener(textWatcher1);
 
-        mButtonAuth = (Button) findViewById(R.id.button_auth);
+    }
 
-        mButtonLogin = (Button) findViewById(R.id.button_login);
-        mButtonLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String username = mTextInputUsername.getEditText().getText().toString();
-                String password = mTextInputPassword.getEditText().getText().toString();
-                if(!username.isEmpty()
-                        || !password.isEmpty()){
-                    requestLogin(username, password);
+    @OnClick(R.id.button_auth)
+    public void onOAuth(View view) {
+        final String baseUrl = GitHubOAuthApi.BASE_URL + "authorize";
+        final String clientId = getString(R.string.oauth_client_id);
+        final String redirectUri = getOAuthRedirectUri();
+        final Uri uri = Uri.parse(baseUrl + "?client_id=" + clientId + "&redirect_uri=" + redirectUri);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
+    }
 
-                    
-                }else{
-                    Toast.makeText(MainActivity.this, R.string.message_empty_field, Toast.LENGTH_SHORT)
-                            .show();
-                    mTextInputUsername.setError("Campo vazio");
-                    mTextInputPassword.setError("Campo vazio");
-                }
-            }
-        });
+    @OnClick(R.id.button_login)
+    public void onBasicAuth(View view) {
+        if (AppUtil.validateRequiredField(getApplicationContext(), mTextInputUsername,
+                mTextInputPassword)) {
+            String username = mTextInputUsername.getEditText().getText().toString();
+            String password = mTextInputPassword.getEditText().getText().toString();
+            requestLogin(username, password);
+        }
+    }
+
+    private String getOAuthRedirectUri() {
+        return getString(R.string.oauth_schema) + "://" + getString(R.string.oauth_host);
     }
 
     private void requestLogin(final String username, final String password) {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-        httpClient.addInterceptor(new Interceptor() {
-            @Override
-            public okhttp3.Response intercept(Chain chain) throws IOException {
-                Request original = chain.request();
-                Request request = original.newBuilder()
-                        .header("Authorization", Credentials.basic(username, password))
-                        .method(original.method(), original.body())
-                        .build();
-                return chain.proceed(request);
-            }
+        httpClient.addInterceptor(chain -> {
+            Request original = chain.request();
+            Request request = original.newBuilder()
+                    .header("Authorization", Credentials.basic(username, password))
+                    .method(original.method(), original.body())
+                    .build();
+            return chain.proceed(request);
         });
 
         OkHttpClient client = httpClient.build();
@@ -200,14 +196,16 @@ public class MainActivity extends AppCompatActivity {
 
         mUserApi = retrofit.create(GitHubUserApi.class);
 
-        mUserApi.getUser().enqueue(new Callback<User>() {
+        mUserApi.basicAuth().enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
-                if(response.isSuccessful()){
-                    Toast.makeText(MainActivity.this, response.body().login, Toast.LENGTH_SHORT).show();
-                }else{
+                if (response.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, response.body().login, Toast.LENGTH_SHORT)
+                            .show();
+                } else {
                     try {
-                        Toast.makeText(MainActivity.this, response.errorBody().string(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, response.errorBody().string(), Toast
+                                .LENGTH_SHORT).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -223,11 +221,57 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void processOAuthRedirectUri() {
+        // Os intent-filter's permitem a interação com o ACTION_VIEW
+        final Uri uri = getIntent().getData();
+        if (uri != null && uri.toString().startsWith(this.getOAuthRedirectUri())) {
+            String code = uri.getQueryParameter("code");
+            if (code != null) {
+                String clienteId = getString(R.string.oauth_client_id);
+                String secretClient = getString(R.string.oauth_client_secret);
+                mOAuthApi.accessToken(clienteId, secretClient, code).enqueue(new Callback<AccessToken>() {
+                    @Override
+                    public void onResponse(Call<AccessToken> call, Response<AccessToken> response) {
+                        if (response.isSuccessful()) {
+                            AccessToken accessToken = response.body();
+                            Toast.makeText(MainActivity.this, accessToken.access_token, Toast
+                                    .LENGTH_SHORT).show();
+                        } else {
+                            try {
+                                Toast.makeText(MainActivity.this, response.errorBody().string(),
+                                        Toast.LENGTH_SHORT).show();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<AccessToken> call, Throwable t) {
+                        Toast.makeText(MainActivity.this, t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else if (uri.getQueryParameter("error") != null) {
+                //TODO Tratar erro
+            }
+            // Limpar os dados para evitar chamadas múltiplas
+            getIntent().setData(null);
+        }
+    }
+
+    @OnClick(R.id.button_call)
+    public void call(View view) {
+        String number = "+55 16 99387-0941";
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + number));
+        startActivity(intent);
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
 
         requestStatusApi();
+        processOAuthRedirectUri();
     }
 }
