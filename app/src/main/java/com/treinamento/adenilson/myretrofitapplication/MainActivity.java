@@ -117,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
                 if(!username.isEmpty()
                         || !password.isEmpty()){
 
+
+                    
                 }else{
                     Toast.makeText(MainActivity.this, R.string.message_empty_field, Toast.LENGTH_SHORT)
                             .show();
