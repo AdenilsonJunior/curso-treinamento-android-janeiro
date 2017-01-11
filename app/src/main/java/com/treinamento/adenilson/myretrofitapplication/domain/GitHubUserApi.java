@@ -14,5 +14,5 @@ public interface GitHubUserApi {
     String BASE_URL = "https://api.github.com/";
 
     @GET("user")
-    Call<User> getUser();
+    Call<User> basicAuth();
 }
