@@ -150,10 +150,9 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         RxTextView.textChanges(mTextInputPassword.getEditText())
-                .skip(1)
-                .subscribe(text -> {
-                    AppUtil.validateRequiredField(this, mTextInputPassword);
-                });
+                .skip(1).subscribe(text -> {
+            AppUtil.validateRequiredField(this, mTextInputPassword);
+        });
     }
 
     @OnClick(R.id.button_auth)
