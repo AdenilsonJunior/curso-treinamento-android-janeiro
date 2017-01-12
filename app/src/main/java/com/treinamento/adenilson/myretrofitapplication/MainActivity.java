@@ -29,6 +29,9 @@ import com.treinamento.adenilson.myretrofitapplication.util.CustomSubscribe;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -45,7 +48,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private String TAG = MainActivity.class.getSimpleName();
     @BindView(R.id.image_view_git)
@@ -56,9 +59,13 @@ public class MainActivity extends AppCompatActivity {
     TextInputLayout mTextInputUsername;
     @BindView(R.id.text_input_pass)
     TextInputLayout mTextInputPassword;
-    private GitHubStatusApi mStatusApi;
-    private GitHubUserApi mUserApi;
-    private GitHubOAuthApi mOAuthApi;
+
+    @Inject
+    GitHubStatusApi mStatusApi;
+    @Inject
+    GitHubUserApi mUserApi;
+    @Inject
+    GitHubOAuthApi mOAuthApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,14 +73,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
+       getMyApplication().getDaggerDiComponent().inject(this);
 
         configureViews();
-        createApis();
-    }
-
-    private void createApis() {
-        mStatusApi = GitHubStatusApi.RETROFIT.create(GitHubStatusApi.class);
-        mOAuthApi = GitHubOAuthApi.RETROFIT.create(GitHubOAuthApi.class);
     }
 
     private void requestStatusApi() {
@@ -105,44 +107,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configureViews() {
-
-        TextWatcher textWatcher = new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        };
-
-        TextWatcher textWatcher1 = new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        };
-
-
         RxTextView.textChanges(mTextInputUsername.getEditText())
                 .skip(1)
                 .subscribe(text -> {
@@ -230,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 String secretClient = getString(R.string.oauth_client_secret);
                 mOAuthApi.accessToken(clienteId, secretClient, code)
                         .subscribeOn(Schedulers.io())
-                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new CustomSubscribe<AccessToken>(this) {
                             @Override
                             public void onError(String e) {

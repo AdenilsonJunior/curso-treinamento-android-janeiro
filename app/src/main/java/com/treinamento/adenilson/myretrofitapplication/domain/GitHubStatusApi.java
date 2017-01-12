@@ -19,15 +19,6 @@ public interface GitHubStatusApi {
 
     String BASE_URL = "https://status.github.com/api/";
 
-
-    Retrofit RETROFIT = new Retrofit.Builder()
-            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
-                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-                    .create()))
-            .baseUrl(BASE_URL)
-            .build();
-
     @GET("last-message.json")
     Observable<Status> lastMessage();
 

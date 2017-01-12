@@ -32,6 +32,7 @@ android {
 ext{
     supportLibVersion = "25.0.1"
     retrofitLibVersion = "2.1.0"
+    dagger2LibVersion = "2.8"
 }
 
 dependencies {
@@ -58,4 +59,9 @@ dependencies {
 
     // RxJava Binding
     compile 'com.jakewharton.rxbinding:rxbinding:1.0.0'
+
+    // Dagger 2 (by Google)
+    compile "com.google.dagger:dagger:${dagger2LibVersion}"
+    annotationProcessor "com.google.dagger:dagger-compiler:${dagger2LibVersion}"
+
 }

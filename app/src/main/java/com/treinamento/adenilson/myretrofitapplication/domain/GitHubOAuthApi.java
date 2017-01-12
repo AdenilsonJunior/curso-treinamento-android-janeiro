@@ -20,14 +20,6 @@ public interface GitHubOAuthApi {
 
     String BASE_URL = "https://github.com/login/oauth/";
 
-    Retrofit RETROFIT = new Retrofit.Builder()
-            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
-                    .create()))
-            .baseUrl(BASE_URL)
-            .build();
-
-
     @Headers({"Accept: application/json"})
     @FormUrlEncoded
     @POST("access_token")
