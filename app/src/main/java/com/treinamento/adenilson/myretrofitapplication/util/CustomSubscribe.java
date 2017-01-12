@@ -1,6 +1,7 @@
 package com.treinamento.adenilson.myretrofitapplication.util;
 
 import android.app.Activity;
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.treinamento.adenilson.myretrofitapplication.MainActivity;

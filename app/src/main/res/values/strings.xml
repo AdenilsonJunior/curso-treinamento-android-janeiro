@@ -16,6 +16,7 @@
     <string name="txt_loading">LOADING...</string>
     <string name="txt_alert">ATENÇÃO</string>
     <string name="txt_disable">DISABLE</string>
+    <string name="sp_file_key">sp_file_key</string>
 
 
 </resources>
