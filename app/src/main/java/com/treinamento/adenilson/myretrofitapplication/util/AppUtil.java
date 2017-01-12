@@ -24,6 +24,9 @@ public class AppUtil {
                     isValid = false;
                     field.setErrorEnabled(true);
                     field.setError(context.getString(R.string.message_empty_field));
+                }else{
+                    field.setErrorEnabled(false);
+                    field.setError(null);
                 }
             }else{
                 throw new RuntimeException("InputTextLayout não tem um EditText.");

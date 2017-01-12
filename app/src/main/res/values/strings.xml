@@ -12,6 +12,10 @@
     <string name="oauth_host">brainmachine.io</string>
     <string name="oauth_schema">http</string>
     <string name="txt_call">Call</string>
+    <string name="txt_enable">ENABLE</string>
+    <string name="txt_loading">LOADING...</string>
+    <string name="txt_alert">ATENÇÃO</string>
+    <string name="txt_disable">DISABLE</string>
 
 
 </resources>
