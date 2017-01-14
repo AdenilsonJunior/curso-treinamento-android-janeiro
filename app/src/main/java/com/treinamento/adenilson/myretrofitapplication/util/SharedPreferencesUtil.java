@@ -1,4 +1,4 @@
-package com.treinamento.adenilson.myretrofitapplication.domain;
+package com.treinamento.adenilson.myretrofitapplication.util;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -16,6 +16,10 @@ public class SharedPreferencesUtil {
         SharedPreferences sharedPreferences = activity.getSharedPreferences(AUTH, 0);
         SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.putString(TOKEN, token).apply();
+    }
 
+    public static String getToken(Activity activity){
+        SharedPreferences sharedPreferences = activity.getSharedPreferences(AUTH, 0);
+        return sharedPreferences.getString(TOKEN, "null");
     }
 }

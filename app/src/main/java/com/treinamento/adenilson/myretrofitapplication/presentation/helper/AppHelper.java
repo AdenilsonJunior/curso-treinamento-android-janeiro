@@ -1,4 +1,4 @@
-package com.treinamento.adenilson.myretrofitapplication.util;
+package com.treinamento.adenilson.myretrofitapplication.presentation.helper;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,9 +12,15 @@ import com.treinamento.adenilson.myretrofitapplication.R;
  * Created by adenilson on 11/01/17.
  */
 
-public class AppUtil {
+public class AppHelper {
 
-    public static boolean validateRequiredField(Context context, TextInputLayout... fields) {
+    private final Context mContext;
+
+    public AppHelper(Context mContext) {
+        this.mContext = mContext;
+    }
+
+    public boolean validateRequiredField(TextInputLayout... fields) {
 
         boolean isValid = true;
         for (TextInputLayout field : fields) {
@@ -23,7 +29,7 @@ public class AppUtil {
                 if(TextUtils.isEmpty(editText.getText())){
                     isValid = false;
                     field.setErrorEnabled(true);
-                    field.setError(context.getString(R.string.message_empty_field));
+                    field.setError(mContext.getString(R.string.message_empty_field));
                 }else{
                     field.setErrorEnabled(false);
                     field.setError(null);

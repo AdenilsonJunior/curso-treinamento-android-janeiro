@@ -1,11 +1,7 @@
-package com.treinamento.adenilson.myretrofitapplication.domain;
+package com.treinamento.adenilson.myretrofitapplication.infraestructure.storage.service;
 
-import com.google.gson.GsonBuilder;
+import com.treinamento.adenilson.myretrofitapplication.domain.entity.AccessToken;
 
-import retrofit2.Call;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.Headers;
@@ -16,7 +12,7 @@ import rx.Observable;
  * Created by adenilson on 11/01/17.
  */
 
-public interface GitHubOAuthApi {
+public interface GitHubOAuthService {
 
     String BASE_URL = "https://github.com/login/oauth/";
 

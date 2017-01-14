@@ -1,8 +1,10 @@
-package com.treinamento.adenilson.myretrofitapplication;
+package com.treinamento.adenilson.myretrofitapplication.presentation.base;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+
+import com.treinamento.adenilson.myretrofitapplication.MyApplication;
 
 import butterknife.ButterKnife;
 

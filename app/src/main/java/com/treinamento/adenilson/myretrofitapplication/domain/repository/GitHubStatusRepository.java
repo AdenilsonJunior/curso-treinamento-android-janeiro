@@ -1,4 +1,4 @@
-package com.treinamento.adenilson.myretrofitapplication.domain;
+package com.treinamento.adenilson.myretrofitapplication.domain.repository;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,11 +15,8 @@ import rx.Observable;
  * Created by adenilson on 09/01/17.
  */
 
-public interface GitHubStatusApi {
+public interface GitHubStatusRepository {
 
-    String BASE_URL = "https://status.github.com/api/";
-
-    @GET("last-message.json")
     Observable<Status> lastMessage();
 
 }

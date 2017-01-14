@@ -1,4 +1,4 @@
-package com.treinamento.adenilson.myretrofitapplication.domain;
+package com.treinamento.adenilson.myretrofitapplication.domain.entity;
 
 /**
  * Created by adenilson on 11/01/17.
